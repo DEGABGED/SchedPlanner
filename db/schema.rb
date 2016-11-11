@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161111154942) do
+ActiveRecord::Schema.define(version: 20161111190010) do
 
   create_table "courses", force: :cascade do |t|
     t.string   "name"
@@ -25,6 +25,16 @@ ActiveRecord::Schema.define(version: 20161111154942) do
     t.text     "timeslot"
   end
 
+  create_table "schedule_courses", force: :cascade do |t|
+    t.integer  "schedule_id"
+    t.integer  "course_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "schedule_courses", ["course_id"], name: "index_schedule_courses_on_course_id"
+  add_index "schedule_courses", ["schedule_id"], name: "index_schedule_courses_on_schedule_id"
+
   create_table "schedules", force: :cascade do |t|
     t.datetime "time_start"
     t.datetime "time_end"
@@ -36,5 +46,15 @@ ActiveRecord::Schema.define(version: 20161111154942) do
     t.datetime "updated_at", null: false
     t.integer  "breaks"
   end
+
+  create_table "schedules_courses", force: :cascade do |t|
+    t.integer  "schedules_id"
+    t.integer  "courses_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "schedules_courses", ["courses_id"], name: "index_schedules_courses_on_courses_id"
+  add_index "schedules_courses", ["schedules_id"], name: "index_schedules_courses_on_schedules_id"
 
 end

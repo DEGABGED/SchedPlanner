@@ -1,4 +1,7 @@
 class Course < ActiveRecord::Base
+  has_many :schedule_courses
+  has_many :schedules, through: :schedule_courses
+  #has_and_belongs_to_many :schedules
   serialize :timeslot, Array
   #{:monday => {:day, :t_start, :t_end}}
   #[], numbers 0-47 for time slots

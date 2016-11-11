@@ -1,4 +1,6 @@
 class Schedule < ActiveRecord::Base
+  has_many :schedule_courses
+  has_many :courses, through: :schedule_courses
   serialize :subjects, Array
   #["math 17", "cs 30", etc.]
 
