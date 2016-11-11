@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  time_start: 2016-11-11 22:48:43
+  time_end: 2016-11-11 22:48:43
+  mon_class: 1
+  sat_class: 1
+
+two:
+  time_start: 2016-11-11 22:48:43
+  time_end: 2016-11-11 22:48:43
+  mon_class: 1
+  sat_class: 1

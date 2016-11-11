@@ -1,0 +1,23 @@
+<h1>lmao</h1>
+
+<%= form_for @schedule, url: {action: "create"} do |f| %>
+  <h2> subjects: </h2>
+  <%= f.text_area :subjects, value: "" %>
+
+  <h2> time_start: </h2>
+  <%= f.time_field :time_start %>
+
+  <h2> time_end: </h2>
+  <%= f.time_field :time_end %>
+
+  <h2> mon or sat? </h2>
+  <%= f.check_box(:mon_class) %>
+  <%= label_tag(:mon_class, "Monday") %>
+  <%= f.check_box(:sat_class) %>
+  <%= label_tag(:sat_class, "Saturday") %>
+
+  <h2> subjects in a row? </h2>
+  <%= f.number_field :breaks %>
+
+  <%= f.submit %>
+<% end %>
