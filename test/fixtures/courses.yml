@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  time_start: 2016-11-11 20:19:07
+  time_end: 2016-11-11 20:19:07
+  demand: 
+  subj_code: 
+
+two:
+  name: MyString
+  time_start: 2016-11-11 20:19:07
+  time_end: 2016-11-11 20:19:07
+  demand: 
+  subj_code: 
