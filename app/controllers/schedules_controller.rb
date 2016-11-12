@@ -14,9 +14,6 @@ class SchedulesController < ApplicationController
     sched[:mon_class] = params[:mon_class] ? params[:mon_class] : 0
     sched[:sat_class] = params[:sat_class] ? params[:sat_class] : 0
     subjects = sched[:subjects].split(/\r\n/)
-    puts "wut", subjects
-    sched[:subjects] = subjects
-    puts "lmao", sched
     @schedule = Schedule.new(sched)
     @schedule.save
     redirect_to schedule_path(@schedule)
