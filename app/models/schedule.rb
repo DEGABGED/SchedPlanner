@@ -3,7 +3,8 @@ class Schedule < ActiveRecord::Base
   has_many :schedule_courses
   has_many :courses, through: :schedule_courses
   serialize :subjects, Array
-  #["math 17", "cs 30", etc.]
+  validates :subjects, :breaks, :time_start, :time_end, presence: true
+  validates :breaks, numericality: {:greater_than => 0, :less_than => 12}
 
   def hasMonClass
     self.mon_class != 0
@@ -102,15 +103,15 @@ class Schedule < ActiveRecord::Base
     self.conflict_resol(s_out.last, s_arr)
 
     #checkers
-    puts "sched _1", s_des
-    puts "s_arr"
-    s_arr.each do |s|
-      puts s.name, s.timeslot, s.day
-    end
-    puts "s_out"
-    s_out.each do |s|
-      puts s.name, s.timeslot, s.day
-    end
+    #puts "sched _1", s_des
+    #puts "s_arr"
+    #s_arr.each do |s|
+      #puts s.name, s.timeslot, s.day
+    #end
+    #puts "s_out"
+    #s_out.each do |s|
+      #puts s.name, s.timeslot, s.day
+    #end
 
     # other classes loop
     while s_des.size != 0 and s_arr.size != 0 do
@@ -134,17 +135,19 @@ class Schedule < ActiveRecord::Base
 
       # consecutivity next
       for i in (0..3) do
-        subset = s_arr.select {|v| v.day == i}.map {|v| v.timeslot}
+        subset = s_arr.select {|v| v.day == i}
         if i == 1 or i == 2 then
-          subset = subset + s_arr.select {|v| v.day == 4}.map {|v| v.timeslot}
+          subset = subset + s_arr.select {|v| v.day == 4}
         end
-
-        puts "subset", subset
 
         #if subset.sort.each_cons(self.breaks).all? {|a,b| b == a+1} then
         #end
-        subset.sort.each_cons(self.breaks).each do |ss|
-          if ss.all? {|a,b| b == a+1} then
+        subset = subset.sort! {|a,b| a.timeslot <=> b.timeslot }
+        m = subset.size - self.breaks
+        for j in (0..m) do
+          ssum = subset[j..j+self.breaks-1].map {|v| v.timeslot}.sum
+          n = subset[j..j+self.breaks-1].size
+          if ssum == (subset[j]-1)*n + n*(n+1)/2 then
             # Remove classes before and after the consecutives
             sub_b = subset.select {|v| v.timeslot = ss.first.timeslot - 1}
             sub_a = subset.select {|v| v.timeslot = ss.last.timeslot + 1}
@@ -153,24 +156,144 @@ class Schedule < ActiveRecord::Base
         end
       end
     end
-    #checkers
-    puts "sched _1", s_des
-    puts "s_arr"
-    s_arr.each do |s|
-      puts s.name, s.timeslot, s.day
-    end
-    puts "s_out"
-    s_out.each do |s|
-      puts s.name, s.timeslot, s.day
-    end
+
+    return s_out
   end
 
   def sched_2
-    s_arr = Marshal.load(Marshal.dump(self.courses))
+    s_arr = []
+    Marshal.load(Marshal.dump(self.courses)).each do |m|
+      s_arr.push(m)
+    end
+    s_des = Marshal.load(Marshal.dump(self.subjects))
+    s_out = []
+    earliest = s_arr.select {|c| c.user_weight == 1}.sort! {|a,b| a.timeslot <=> b.timeslot}.select {|c| c.timeslot > 2}.first
+
+    # initial thing
+    # warning blah blah
+    s_out.push(earliest)
+    s_des = s_des - s_des.select {|s| s.casecmp(earliest.name) == 0}
+    s_arr.delete(earliest)
+
+
+    # conflict resol
+    # remove dsmae name
+    s_arr = s_arr - s_arr.select {|v| v.name.casecmp(s_out.last.name) == 0}
+    self.conflict_resol(s_out.last, s_arr)
+
+    # other classes loop
+    while s_des.size != 0 and s_arr.size != 0 do
+      # get adjacency of each course in s_arr
+      s_arr.each do |c|
+        c_0 = s_out.select {|v| same_day(v.day, c.day) and v.timeslot + 1 == c.timeslot}.first
+        adjacency = location_adj(c.location, c_0 ? c_0.location : c.location)
+        c.priority = c.user_weight + adjacency + c.timeslot
+      end
+
+      # get the one with the lowest p(c, c0)
+      top = s_arr.select{|v| v}.sort! {|a,b| a.priority <=> b.priority }.first
+      s_out.push(top)
+      s_des = s_des - s_des.select {|s| s.casecmp(top.name) == 0}
+      s_arr.delete(top)
+
+      #conflict
+      # remove dsmae name
+      s_arr = s_arr - s_arr.select {|v| v.name.casecmp(s_out.last.name) == 0}
+      self.conflict_resol(s_out.last, s_arr)
+
+      # consecutivity next
+      for i in (0..3) do
+        subset = s_arr.select {|v| v.day == i}
+        if i == 1 or i == 2 then
+          subset = subset + s_arr.select {|v| v.day == 4}
+        end
+
+        #if subset.sort.each_cons(self.breaks).all? {|a,b| b == a+1} then
+        #end
+        subset = subset.sort! {|a,b| a.timeslot <=> b.timeslot }
+        m = subset.size - self.breaks
+        for j in (0..m) do
+          ssum = subset[j..j+self.breaks-1].map {|v| v.timeslot}.sum
+          n = subset[j..j+self.breaks-1].size
+          if ssum == (subset[j]-1)*n + n*(n+1)/2 then
+            # Remove classes before and after the consecutives
+            sub_b = subset.select {|v| v.timeslot = ss.first.timeslot - 1}
+            sub_a = subset.select {|v| v.timeslot = ss.last.timeslot + 1}
+            s_arr = (s_arr - sub_b) - sub_a
+          end
+        end
+      end
+    end
+
+    return s_out
   end
 
   def sched_3
-    s_arr = Marshal.load(Marshal.dump(self.courses))
+    s_arr = []
+    Marshal.load(Marshal.dump(self.courses)).each do |m|
+      s_arr.push(m)
+    end
+    s_des = Marshal.load(Marshal.dump(self.subjects))
+    s_out = []
+    earliest = s_arr.select {|c| c.user_weight == 1}.sort! {|a,b| a.timeslot <=> b.timeslot}.select {|c| c.timeslot > 5}.first
+
+    # initial thing
+    # warning blah blah
+    s_out.push(earliest)
+    s_des = s_des - s_des.select {|s| s.casecmp(earliest.name) == 0}
+    s_arr.delete(earliest)
+
+
+    # conflict resol
+    # remove dsmae name
+    s_arr = s_arr - s_arr.select {|v| v.name.casecmp(s_out.last.name) == 0}
+    self.conflict_resol(s_out.last, s_arr)
+
+    # other classes loop
+    while s_des.size != 0 and s_arr.size != 0 do
+      # get adjacency of each course in s_arr
+      s_arr.each do |c|
+        c_0 = s_out.select {|v| same_day(v.day, c.day) and v.timeslot + 1 == c.timeslot}.first
+        adjacency = location_adj(c.location, c_0 ? c_0.location : c.location)
+        c.priority = c.user_weight + adjacency + c.timeslot
+      end
+
+      # get the one with the lowest p(c, c0)
+      top = s_arr.select{|v| v}.sort! {|a,b| a.priority <=> b.priority }.first
+      s_out.push(top)
+      s_des = s_des - s_des.select {|s| s.casecmp(top.name) == 0}
+      s_arr.delete(top)
+
+      #conflict
+      # remove dsmae name
+      s_arr = s_arr - s_arr.select {|v| v.name.casecmp(s_out.last.name) == 0}
+      self.conflict_resol(s_out.last, s_arr)
+
+      # consecutivity next
+      for i in (0..3) do
+        subset = s_arr.select {|v| v.day == i}
+        if i == 1 or i == 2 then
+          subset = subset + s_arr.select {|v| v.day == 4}
+        end
+
+        #if subset.sort.each_cons(self.breaks).all? {|a,b| b == a+1} then
+        #end
+        subset = subset.sort! {|a,b| a.timeslot <=> b.timeslot }
+        m = subset.size - self.breaks
+        for j in (0..m) do
+          ssum = subset[j..j+self.breaks-1].map {|v| v.timeslot}.sum
+          n = subset[j..j+self.breaks-1].size
+          if ssum == (subset[j]-1)*n + n*(n+1)/2 then
+            # Remove classes before and after the consecutives
+            sub_b = subset.select {|v| v.timeslot = ss.first.timeslot - 1}
+            sub_a = subset.select {|v| v.timeslot = ss.last.timeslot + 1}
+            s_arr = (s_arr - sub_b) - sub_a
+          end
+        end
+      end
+    end
+
+    return s_out
   end
 
   def opt_sched
@@ -181,17 +304,16 @@ class Schedule < ActiveRecord::Base
     # remove the unwanted classes
     self.courses.each do |course|
       if course.timeslot < self.time_start_int or course.timeslot > self.time_end_int then
-        self.courses.delete(course.id)
+        self.courses.delete(course)
       end
       if self.mon_class == 0 and course.day == 0 then
-        self.courses.delete(course.id)
+        self.courses.delete(course)
       end
       if self.sat_class == 0 and course.day == 5 then
-        self.courses.delete(course.id)
+        self.courses.delete(course)
       end
     end
 
     # Start processing each shit
-    self.sched_1
   end
 end
