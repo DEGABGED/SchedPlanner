@@ -113,7 +113,7 @@ class Schedule < ActiveRecord::Base
     end
 
     # other classes loop
-    while s_des.size != 0 do
+    while s_des.size != 0 and s_arr.size != 0 do
       # get adjacency of each course in s_arr
       s_arr.each do |c|
         c_0 = s_out.select {|v| same_day(v.day, c.day) and v.timeslot + 1 == c.timeslot}.first
@@ -133,8 +133,24 @@ class Schedule < ActiveRecord::Base
       self.conflict_resol(s_out.last, s_arr)
 
       # consecutivity next
-      for i in (1..3) do
-        
+      for i in (0..3) do
+        subset = s_arr.select {|v| v.day == i}.map {|v| v.timeslot}
+        if i == 1 or i == 2 then
+          subset = subset + s_arr.select {|v| v.day == 4}.map {|v| v.timeslot}
+        end
+
+        puts "subset", subset
+
+        #if subset.sort.each_cons(self.breaks).all? {|a,b| b == a+1} then
+        #end
+        subset.sort.each_cons(self.breaks).each do |ss|
+          if ss.all? {|a,b| b == a+1} then
+            # Remove classes before and after the consecutives
+            sub_b = subset.select {|v| v.timeslot = ss.first.timeslot - 1}
+            sub_a = subset.select {|v| v.timeslot = ss.last.timeslot + 1}
+            s_arr = (s_arr - sub_b) - sub_a
+          end
+        end
       end
     end
     #checkers
