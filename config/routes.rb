@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
-  resources :schedules, only: [:new, :create, :show]
-  root 'schedules#new'
+  resources :schedules, only: [:new, :create, :show, :home]
+
+  root 'schedules#home'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

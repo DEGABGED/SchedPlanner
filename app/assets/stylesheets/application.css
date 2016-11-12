@@ -13,3 +13,137 @@
  *= require_tree .
  *= require_self
  */
+ #bg {
+     background-color: #99424F;
+     animation: fadein 3s;
+     -moz-animation: fadein 3s; /* Firefox */
+     -webkit-animation: fadein 3s; /* Safari and Chrome */
+     -o-animation: fadein 3s; /* Opera */
+    background-image:    url(/icons/P_LandingPage.png);
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+ }
+ #mainDiv {
+     position: absolute;
+     top:0;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     margin: auto;
+     width: 880px;
+     overflow: hidden;
+ }
+ #bottomDiv {
+     position:fixed;
+     bottom:100%;
+     left: auto;
+ }
+ #img {
+     animation: fadein 2s;
+     -moz-animation: fadein 2s; /* Firefox */
+     -webkit-animation: fadein 2s; /* Safari and Chrome */
+     -o-animation: fadein 2s; /* Opera */
+     width: 1200px;
+     height: 500px;
+ }
+ #img2 {
+     animation: fadein 2s;
+     -moz-animation: fadein 2s; /* Firefox */
+     -webkit-animation: fadein 2s; /* Safari and Chrome */
+     -o-animation: fadein 2s; /* Opera */
+     width: 60px;
+     height: 60px;
+ }
+ #cntr {
+     position: relative;
+     text-align:center;
+ }
+ #budy {
+    background-image:    url(/icons/P_BG.png);
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+}
+ @keyframes fadein {
+     from {
+         opacity:0;
+     }
+     to {
+         opacity:1;
+     }
+ }
+ @-moz-keyframes fadein { /* Firefox */
+     from {
+         opacity:0;
+     }
+     to {
+         opacity:1;
+     }
+ }
+ @-webkit-keyframes fadein { /* Safari and Chrome */
+     from {
+         opacity:0;
+     }
+     to {
+         opacity:1;
+     }
+ }
+ @-o-keyframes fadein { /* Opera */
+     from {
+         opacity:0;
+     }
+     to {
+         opacity: 1;
+     }
+ }
+
+ #butones a {
+     animation: fadein 3s;
+    -moz-animation: fadein 3s; /* Firefox */
+    -webkit-animation: fadein 3s; /* Safari and Chrome */
+    -o-animation: fadein 3s; /* Opera */
+     color:#FFFFFF;
+     font-family: 'Source Sans Pro', sans-serif;
+     font-size: 28px;
+     text-decoration: none;
+ }
+
+#h12 {
+    font-family: 'Merriweather Sans', sans-serif;
+    font-weight: bold;
+    font-size: 36px;
+    margin-bottom: 50px;
+}
+
+#marginalized {
+    margin-top: 130px;
+    text-align: center;
+
+        animation: fadein 2s;
+        -moz-animation: fadein 2s; /* Firefox */
+        -webkit-animation: fadein 2s; /* Safari and Chrome */
+        -o-animation: fadein 2s; /* Opera */
+}
+
+#h22 {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 20px;
+}
+
+#h23 {
+    font-family: 'Source Sans Pro', sans-serif;
+    display: inline;
+    font-size: 16px;
+}
+
+label {
+    font-family: 'Source Sans Pro', sans-serif;
+    display: inline;
+    font-size: 16px;
+}
+
+#middleBox{
+    width: 600px;
+    align-self: center;
+    text-align: left;
+    margin-left: 22%;
+}
