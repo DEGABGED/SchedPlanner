@@ -147,3 +147,9 @@ label {
     text-align: left;
     margin-left: 22%;
 }
+
+#sched {
+   background-image:    url(/icons/P_SchedPage.png);
+   background-size:     cover;                      /* <------ */
+   background-repeat:   no-repeat;
+}
